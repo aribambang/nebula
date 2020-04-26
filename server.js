@@ -6,10 +6,15 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// bring routes
+const blogRoutes = require('./routes/blog');
+const authRoutes = require('./routes/auth');
+
 // app
 const app = express();
 
 // database
+mongoose.set('useCreateIndex', true);
 const databaseName = process.env.DB_NAME;
 const databaseUser = process.env.DB_USER;
 const databasePassword = process.env.DB_PASSWORD;
@@ -32,10 +37,9 @@ app.use(
   })
 );
 
-// routes
-app.get('/api', (req, res) => {
-  res.json({ time: Date().toString() });
-});
+// routes middleware
+app.use('/api', blogRoutes);
+app.use('/api', authRoutes);
 
 // port
 const port = process.env.PORT || 8000;
