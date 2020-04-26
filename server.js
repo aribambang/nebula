@@ -13,7 +13,11 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(cookieParser());
 // cors
-app.use(cors());
+app.use(
+  cors({
+    origin: `${process.env.CLIENT_URL}`,
+  })
+);
 
 // routes
 app.get('/api', (req, res) => {
