@@ -18,4 +18,41 @@ const create = (req, res) => {
   });
 };
 
+const list = (req, res) => {
+  Category.find({}).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler(err),
+      });
+    }
+    res.json(data);
+  });
+};
+
+const read = (req, res) => {
+  const slug = req.params.slug.toLowerCase();
+
+  Category.findOne({ slug }).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler(err),
+      });
+    }
+    res.json(data);
+  });
+};
+
+const remove = (req, res) => {
+  const slug = req.params.slug.toLowerCase();
+
+  Category.findByIdAndRemove({ slug }).exec((err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: errorHandler(err),
+      });
+    }
+    res.json({ message: 'Category was deleted' });
+  });
+};
+
 exports.create = create;
