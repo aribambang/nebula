@@ -1,4 +1,4 @@
-const Category = require('../models/category');
+const Tag = require('../models/tag');
 const slugify = require('slugify');
 const errorHandler = require('../helpers/dbErrorHandler');
 
@@ -6,9 +6,9 @@ const create = (req, res) => {
   const { name } = req.body;
   let slug = slugify(name).toLowerCase();
 
-  let category = new Category({ name, slug });
+  let tag = new Tag({ name, slug });
 
-  category.save((err, data) => {
+  tag.save((err, data) => {
     if (err) {
       return res.status(400).json({
         error: errorHandler(err),
@@ -19,7 +19,7 @@ const create = (req, res) => {
 };
 
 const list = (req, res) => {
-  Category.find({}).exec((err, data) => {
+  Tag.find({}).exec((err, data) => {
     if (err) {
       return res.status(400).json({
         error: errorHandler(err),
@@ -32,7 +32,7 @@ const list = (req, res) => {
 const read = (req, res) => {
   const slug = req.params.slug.toLowerCase();
 
-  Category.findOne({ slug }).exec((err, data) => {
+  Tag.findOne({ slug }).exec((err, data) => {
     if (err) {
       return res.status(400).json({
         error: errorHandler(err),
@@ -45,13 +45,13 @@ const read = (req, res) => {
 const remove = (req, res) => {
   const slug = req.params.slug.toLowerCase();
 
-  Category.findByIdAndRemove({ slug }).exec((err, data) => {
+  Tag.findByIdAndRemove({ slug }).exec((err, data) => {
     if (err) {
       return res.status(400).json({
         error: errorHandler(err),
       });
     }
-    res.json({ message: 'Category was deleted' });
+    res.json({ message: 'Tag was deleted' });
   });
 };
 
