@@ -11,7 +11,7 @@ const blogRoutes = require('./routes/blog');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const categoryRoutes = require('./routes/category');
-const tagRoutes = require('/routes/tag');
+const tagRoutes = require('./routes/tag');
 
 // app
 const app = express();
@@ -26,6 +26,7 @@ mongoose
   .connect(databaseUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useFindAndModify: false,
   })
   .then(() => console.log('DB connected.'));
 
