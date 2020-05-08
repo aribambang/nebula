@@ -10,6 +10,7 @@ const fs = require('fs');
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const UUID = require('uuid-v4');
+const { smartTrim } = require('../helpers/blog');
 
 const storage = new Storage({
   projectId: process.env.FIREBASE_ID,
@@ -91,6 +92,7 @@ exports.create = (req, res) => {
     let blog = new Blog();
     blog.title = title;
     blog.body = body;
+    blog.excerpt = smartTrim(body, 320, ' ', ' ...');
     blog.slug = slugify(title).toLowerCase();
     blog.mtitle = `${title} | ${process.env.APP_NAME}`;
     blog.mdesc = stripHtml(body.substring(0, 160));
