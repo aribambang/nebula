@@ -7,6 +7,7 @@ const {
   read,
   remove,
   update,
+  listRelated,
 } = require('../controllers/blog');
 
 const { requireSignin, adminMiddleware } = require('../controllers/auth');
@@ -17,5 +18,6 @@ router.post('/blogs-categories-tags', listAllBlogsCategoriesTags);
 router.get('/blog/:slug', read);
 router.delete('/blog/:slug', requireSignin, adminMiddleware, remove);
 router.put('/blog/:slug', requireSignin, adminMiddleware, update);
+router.post('/blogs/related', listRelated);
 
 module.exports = router;

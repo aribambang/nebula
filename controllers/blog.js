@@ -18,7 +18,7 @@ const storage = new Storage({
 });
 const bucket = storage.bucket(`${process.env.FIREBASE_ID}.appspot.com`);
 
-const uploadImageToStorage = (file) => {
+const uploadImageToStorage = (file, userId) => {
   return new Promise((resolve, reject) => {
     if (!file) {
       reject('No image file');
@@ -27,7 +27,7 @@ const uploadImageToStorage = (file) => {
     let uuid = UUID();
     bucket
       .upload(file.path, {
-        destination: 'images/' + file.name,
+        destination: 'images/' + userId + '_' + Date.now(),
         metadata: {
           contentType: file.type,
           metadata: {
@@ -108,7 +108,7 @@ exports.create = (req, res) => {
         });
       }
 
-      uploadImageToStorage(files.photo)
+      uploadImageToStorage(files.photo, req.user._id)
         .then((url) => {
           blog.photo = url;
           blog.save((err, result) => {
@@ -321,4 +321,22 @@ exports.update = (req, res) => {
       }
     });
   });
+};
+
+exports.listRelated = (req, res) => {
+  let limit = req.body.limit ? parseInt(req.body.limit) : 3;
+  const { _id, categories } = req.body.blog;
+
+  Blog.find({ _id: { $ne: _id }, categories: { $in: categories } })
+    .limit(limit)
+    .populate('postedBy', '_id name profile')
+    .select('title slug excerpt photo postedBy createdAt updatedAt')
+    .exec((err, blogs) => {
+      if (err) {
+        return res.status(400).json({
+          error: 'Blogs not found',
+        });
+      }
+      res.json(blogs);
+    });
 };
