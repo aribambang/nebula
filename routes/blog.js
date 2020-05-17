@@ -8,6 +8,7 @@ const {
   remove,
   update,
   listRelated,
+  listSearch,
 } = require('../controllers/blog');
 
 const { requireSignin, adminMiddleware } = require('../controllers/auth');
@@ -19,5 +20,6 @@ router.get('/blog/:slug', read);
 router.delete('/blog/:slug', requireSignin, adminMiddleware, remove);
 router.put('/blog/:slug', requireSignin, adminMiddleware, update);
 router.post('/blogs/related', listRelated);
+router.get('/blogs/search', listSearch);
 
 module.exports = router;
