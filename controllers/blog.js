@@ -300,8 +300,9 @@ exports.update = (req, res) => {
             error: 'Image should be less then 1mb in size',
           });
         }
-        uploadImageToStorage(files.photo)
+        uploadImageToStorage(files.photo, req.user._id)
           .then((url) => {
+            console.log(url);
             oldBlog.photo = url;
             oldBlog.save((err, result) => {
               if (err) {
@@ -318,6 +319,16 @@ exports.update = (req, res) => {
               error: 'Failed upload to server',
             });
           });
+      } else {
+        oldBlog.save((err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: errorHandler(err),
+            });
+          }
+          // result.photo = undefined;
+          res.json(result);
+        });
       }
     });
   });
