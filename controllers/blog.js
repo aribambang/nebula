@@ -6,52 +6,8 @@ const slugify = require('slugify');
 const stripHtml = require('string-strip-html');
 const _ = require('lodash');
 const { errorHandler } = require('../helpers/dbErrorHandler');
-const fs = require('fs');
-const { Storage } = require('@google-cloud/storage');
-const path = require('path');
-const UUID = require('uuid-v4');
 const { smartTrim } = require('../helpers/blog');
-
-const storage = new Storage({
-  projectId: process.env.FIREBASE_ID,
-  keyFilename: path.join(__dirname, '..', 'firebase.json'),
-});
-const bucket = storage.bucket(`${process.env.FIREBASE_ID}.appspot.com`);
-
-const uploadImageToStorage = (file, userId) => {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      reject('No image file');
-    }
-
-    let uuid = UUID();
-    bucket
-      .upload(file.path, {
-        destination: 'images/' + userId + '_' + Date.now(),
-        metadata: {
-          contentType: file.type,
-          metadata: {
-            firebaseStorageDownloadTokens: uuid,
-          },
-        },
-      })
-      .then((data) => {
-        let file = data[0];
-
-        resolve(
-          'https://firebasestorage.googleapis.com/v0/b/' +
-            bucket.name +
-            '/o/' +
-            encodeURIComponent(file.name) +
-            '?alt=media&token=' +
-            uuid
-        );
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-};
+const { uploadImage } = require('../helpers/uploadImage');
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
@@ -108,7 +64,7 @@ exports.create = (req, res) => {
         });
       }
 
-      uploadImageToStorage(files.photo, req.user._id)
+      uploadImage(files.photo, req.user._id)
         .then((url) => {
           blog.photo = url;
           blog.save((err, result) => {
@@ -300,9 +256,8 @@ exports.update = (req, res) => {
             error: 'Image should be less then 1mb in size',
           });
         }
-        uploadImageToStorage(files.photo, req.user._id)
+        uploadImage(files.photo, req.user._id)
           .then((url) => {
-            console.log(url);
             oldBlog.photo = url;
             oldBlog.save((err, result) => {
               if (err) {
@@ -340,7 +295,7 @@ exports.listRelated = (req, res) => {
 
   Blog.find({ _id: { $ne: _id }, categories: { $in: categories } })
     .limit(limit)
-    .populate('postedBy', '_id name profile')
+    .populate('postedBy', '_id name username profile')
     .select('title slug excerpt photo postedBy createdAt updatedAt')
     .exec((err, blogs) => {
       if (err) {
