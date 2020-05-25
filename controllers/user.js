@@ -57,6 +57,12 @@ exports.update = (req, res) => {
     let user = req.profile;
     user = _.extend(user, fields);
 
+    if (fields.password && fields.password.length < 6) {
+      return res.status(400).json({
+        error: 'Password should be min 6 characters long',
+      });
+    }
+
     if (files.photo) {
       if (files.photo.size > 10000000) {
         return res.status(400).json({
@@ -72,6 +78,7 @@ exports.update = (req, res) => {
             });
           }
           user.hashed_password = undefined;
+          user.salt = undefined;
           res.json(user);
         });
       });
@@ -83,6 +90,7 @@ exports.update = (req, res) => {
           });
         }
         user.hashed_password = undefined;
+        user.salt = undefined;
         res.json(user);
       });
     }
@@ -98,6 +106,7 @@ exports.photo = (req, res) => {
       });
     }
     if (user.photo) {
+      console.log(user.photo);
       return res.send(user.photo);
     }
   });
